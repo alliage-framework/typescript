@@ -1,0 +1,5 @@
+tasks:
+  - name: typescript
+    description: Compile TypeScript code
+    params:
+      projectPath: './tsconfig.json'

@@ -1,0 +1,7 @@
+{
+  "copyFiles": ["<scenarioRoot>/src", "<scenarioRoot>/config"],
+  "linkModules": {
+    "@alliage/typescript": "<projectRoot>"
+  },
+  "alliageModules": ["@alliage/module-installer", "@alliage/lifecycle", "@alliage/di"]
+}

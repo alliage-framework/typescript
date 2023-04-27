@@ -1,0 +1,85 @@
+{
+  "name": "@alliage/typescript",
+  "version": "0.0.0",
+  "description": "TypeScript module for Alliage framework",
+  "files": [
+    "README.md",
+    "LICENSE",
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "git@github.com:alliage-framework/typescript.git",
+  "author": "Boris LEBON <bo.lebon@gmail.com>",
+  "license": "ISC",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint . --ext .js --ext .ts",
+    "lint:fix": "yarn lint -- --fix",
+    "test:unit": "NODE_ENV=test jest --maxWorkers=2 --coverage",
+    "test:integration": "NODE_ENV=test jest --maxWorkers=2 --rootDir=. -c ./integration-tests/jest.config.js",
+    "test": "yarn lint && yarn test:unit",
+    "semantic-release": "semantic-release",
+    "prepare": "husky install"
+  },
+  "alliageManifest": {
+    "type": "module",
+    "dependencies": [
+      "@alliage/lifecycle",
+      "@alliage/di",
+      "@alliage/config-loader",
+      "@alliage/module-installer",
+      "@alliage/builder"
+    ],
+    "environments": [
+      "development"
+    ],
+    "installationProcedures": {
+      "copyFiles": [
+        [
+          "base-files/tsconfig.json",
+          "tsconfig.json"
+        ]
+      ]
+    }
+  },
+  "devDependencies": {
+    "@alliage/core": "0.1.0-beta.1",
+    "@alliage/framework": "^1.0.0-beta.2",
+    "@alliage/sandbox": "^1.0.0-beta.1",
+    "@semantic-release/changelog": "^6.0.3",
+    "@types/jest": "^25.2.2",
+    "@types/node": "^14.0.1",
+    "@typescript-eslint/eslint-plugin": "^2.33.0",
+    "@typescript-eslint/parser": "^2.33.0",
+    "@typescript-eslint/typescript-estree": "^2.33.0",
+    "eslint": "^7.0.0",
+    "eslint-config-airbnb": "^18.1.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-prettier": "^3.1.3",
+    "husky": "^8.0.3",
+    "jest": "^26.0.1",
+    "jest-extended": "^0.11.5",
+    "prettier": "^2.0.5",
+    "semantic-release": "^21.0.1",
+    "ts-jest": "^25.5.1",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.9.3"
+  },
+  "peerDependencies": {
+    "@alliage/framework": "^1.0.0-beta.2",
+    "@alliage/lifecycle": "0.1.0-beta.1",
+    "@alliage/di": "0.1.0-beta.1",
+    "@alliage/config-loader": "0.1.0-beta.1",
+    "@alliage/module-installer": "0.1.0-beta.1",
+    "@alliage/builder": "0.1.0-beta.1",
+    "typescript": "^3.9.3",
+    "ts-node": "^8.10.1"
+  }
+}
