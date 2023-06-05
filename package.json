@@ -17,7 +17,8 @@
   "author": "Boris LEBON <bo.lebon@gmail.com>",
   "license": "ISC",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "yarn clean && tsc -p tsconfig.json",
+    "clean": "rm -rf ./dist",
     "lint": "eslint . --ext .js --ext .ts",
     "lint:fix": "yarn lint -- --fix",
     "test:unit": "NODE_ENV=test jest --maxWorkers=2 --coverage",
@@ -48,10 +49,11 @@
     }
   },
   "devDependencies": {
-    "@alliage/core": "0.1.0-beta.1",
-    "@alliage/framework": "^1.0.0-beta.2",
+    "@alliage/core": "^0.1.0-beta.3",
+    "@alliage/framework": "^1.0.0-beta.3",
     "@alliage/sandbox": "^1.0.0-beta.1",
     "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "@types/jest": "^25.2.2",
     "@types/node": "^14.0.1",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
@@ -70,16 +72,18 @@
     "semantic-release": "^21.0.1",
     "ts-jest": "^25.5.1",
     "ts-node": "^8.10.1",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^3.9.3"
   },
   "peerDependencies": {
-    "@alliage/framework": "^1.0.0-beta.2",
-    "@alliage/lifecycle": "0.1.0-beta.1",
-    "@alliage/di": "0.1.0-beta.1",
-    "@alliage/config-loader": "0.1.0-beta.1",
-    "@alliage/module-installer": "0.1.0-beta.1",
-    "@alliage/builder": "0.1.0-beta.1",
+    "@alliage/framework": "^1.0.0-beta.3",
+    "@alliage/lifecycle": "^0.1.0-beta.3",
+    "@alliage/di": "^0.1.0-beta.3",
+    "@alliage/config-loader": "^0.1.0-beta.3",
+    "@alliage/module-installer": "^0.1.0-beta.3",
+    "@alliage/builder": "^0.1.0-beta.3",
     "typescript": "^3.9.3",
-    "ts-node": "^8.10.1"
+    "ts-node": "^8.10.1",
+    "ts-node-dev": "^2.0.0"
   }
 }

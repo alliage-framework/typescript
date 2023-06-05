@@ -53,7 +53,7 @@ export default class TypeScriptModule extends AbstractModule {
     const useTS = parsedArgs.get<boolean>('use-typescript');
     // if the --use-typescript option has been used
     if (useTS) {
-      const tsNodePath = await getBinaryPath('ts-node');
+      const tsNodePath = await getBinaryPath('ts-node-dev');
       const scriptPath = process.argv[1]; // alliage-script path
       // Re-execute the initial command but through ts-node this time
       const { error } = cp.spawnSync(
@@ -80,7 +80,6 @@ export default class TypeScriptModule extends AbstractModule {
         },
       );
       process.exit(error ? 1 : 0);
-      return;
     }
     container
       .get<ServiceContainer>('service_container')

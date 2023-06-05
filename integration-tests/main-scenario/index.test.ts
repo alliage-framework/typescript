@@ -59,7 +59,7 @@ describe('Main scenario', () => {
       output += chunk;
     });
     await waitCompletion();
-    expect(output).toEqual(
+    expect(output).toContain(
       'Hello Alliage TypeScript ! - test - development\nabout to shut down...\nshutting down with signal: @process-manager/SIGNAL/SUCCESS_SHUTDOWN\n',
     );
   });
