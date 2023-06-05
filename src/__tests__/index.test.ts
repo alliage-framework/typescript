@@ -22,7 +22,7 @@ describe('typescript-module', () => {
     });
 
     describe('#onInit', () => {
-      const primitiveContainer = new PrimitiveContainer();
+      const primitiveContainer = new PrimitiveContainer({});
       const serviceContainer = new ServiceContainer();
 
       primitiveContainer.set('service_container', serviceContainer);
