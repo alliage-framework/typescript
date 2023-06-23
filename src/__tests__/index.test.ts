@@ -153,6 +153,20 @@ describe('typescript-module', () => {
           service('event_manager'),
         ]);
       });
+
+      it('should use ts-node by default', async () => {
+        const args = Arguments.create({ script: 'run' }, ['--use-typescript']);
+        await module.onInit(args, 'test', primitiveContainer);
+
+        expect(getBinaryPathMock).toHaveBeenCalledWith('ts-node');
+      });
+
+      it('should use ts-node-dev when the --watch options is used', async () => {
+        const args = Arguments.create({ script: 'run' }, ['--use-typescript', '--watch']);
+        await module.onInit(args, 'test', primitiveContainer);
+
+        expect(getBinaryPathMock).toHaveBeenCalledWith('ts-node-dev');
+      });
     });
   });
 });

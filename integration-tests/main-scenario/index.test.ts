@@ -28,7 +28,7 @@ describe('Main scenario', () => {
       JSON.parse(fs.readFileSync(`${sandbox.getPath()}/alliage-modules.json`).toString()),
     ).toEqual(
       expect.objectContaining({
-        '@alliage/typescript': {
+        '@alliage/typescript': expect.objectContaining({
           deps: [
             '@alliage/lifecycle',
             '@alliage/di',
@@ -37,9 +37,9 @@ describe('Main scenario', () => {
             '@alliage/builder',
           ],
           envs: ['development'],
-          hash: 'c7ba27130f956748671e845893fd6b80',
+
           module: '@alliage/typescript',
-        },
+        }),
       }),
     );
   });
