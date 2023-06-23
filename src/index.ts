@@ -46,14 +46,19 @@ export default class TypeScriptModule extends AbstractModule {
           describe: 'Configuration file used when running through TypeScript interpreter',
           type: 'string',
           default: 'tsconfig.json',
+        })
+        .addOption('watch', {
+          describe: 'Whether or not the process should be restarted if a change occurs',
+          type: 'boolean',
         }),
       args,
     );
 
     const useTS = parsedArgs.get<boolean>('use-typescript');
+    const watch = parsedArgs.get<boolean>('watch');
     // if the --use-typescript option has been used
     if (useTS) {
-      const tsNodePath = await getBinaryPath('ts-node-dev');
+      const tsNodePath = await getBinaryPath(watch ? 'ts-node-dev' : 'ts-node');
       const scriptPath = process.argv[1]; // alliage-script path
       // Re-execute the initial command but through ts-node this time
       const { error } = cp.spawnSync(
