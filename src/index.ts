@@ -60,19 +60,21 @@ export default class TypeScriptModule extends AbstractModule {
     if (useTS) {
       const tsNodePath = await getBinaryPath(watch ? 'ts-node-dev' : 'ts-node');
       const scriptPath = process.argv[1]; // alliage-script path
+      const scriptArgs = [
+        `--project=${parsedArgs.get('ts-project')}`,
+        scriptPath,
+        args.get('script'),
+        ...(parsedArgs.get('first-argument') === EMPTY_ARGUMENT
+          ? []
+          : [parsedArgs.get('first-argument')]),
+        ...parsedArgs.getRemainingArgs(),
+        `--env=${env}`,
+      ];
       // Re-execute the initial command but through ts-node this time
       const { error } = cp.spawnSync(
         tsNodePath,
-        [
-          `--project=${parsedArgs.get('ts-project')}`,
-          scriptPath,
-          args.get('script'),
-          ...(parsedArgs.get('first-argument') === EMPTY_ARGUMENT
-            ? []
-            : [parsedArgs.get('first-argument')]),
-          ...parsedArgs.getRemainingArgs(),
-          `--env=${env}`,
-        ],
+        // --respawn is used to restart the process when a change occurs
+        watch ? ['--respawn', '--exit-child', '--tree-kill', ...scriptArgs] : scriptArgs,
         {
           stdio: 'inherit',
           env: {
