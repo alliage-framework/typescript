@@ -77,6 +77,7 @@ export default class TypeScriptModule extends AbstractModule {
         watch ? ['--respawn', '--exit-child', '--tree-kill', ...scriptArgs] : scriptArgs,
         {
           stdio: 'inherit',
+          shell: process.platform === 'win32',
           env: {
             ...process.env,
             // This env variable is meant to be used in the config/services.yaml file

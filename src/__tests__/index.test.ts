@@ -35,9 +35,9 @@ describe('typescript-module', () => {
       process.argv[1] = '/path/to/alliage-script';
 
       beforeEach(() => {
-        exitSpy.mockImplementation((() => {}) as any);
+        exitSpy.mockImplementation(() => undefined as never);
         spawnSpy.mockReturnValue({ error: undefined } as SpawnSyncReturns<Buffer>);
-        registerServiceSpy.mockImplementation((() => {}) as any);
+        registerServiceSpy.mockImplementation(() => undefined as never);
         getBinaryPathMock.mockResolvedValue('/path/to/ts-node');
       });
 

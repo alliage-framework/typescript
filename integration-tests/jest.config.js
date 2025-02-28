@@ -1,13 +1,13 @@
-module.exports = {
+/** @type {import('jest').Config} */
+const config = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
   roots: ['<rootDir>'],
-  transform: {
-    '^.+\\.ts?$': 'ts-jest',
-  },
   testMatch: ['<rootDir>/integration-tests/**/*.test.ts'],
   moduleFileExtensions: ['ts', 'js', 'json', 'node'],
-  globals: {
-    'ts-jest': {
-      tsConfig: '<rootDir>/tsconfig.json',
-    },
-  },
+  transform: {
+    '^.+\\.(ts|tsx)$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.json' }],
+  }
 };
+
+export default config;
