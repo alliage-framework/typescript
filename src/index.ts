@@ -1,4 +1,4 @@
-import cp from 'child_process';
+import * as cp from 'child_process';
 
 import {
   AbstractModule,
@@ -9,10 +9,10 @@ import {
 } from '@alliage/framework';
 import { ServiceContainer, service } from '@alliage/di';
 
-import { getBinaryPath } from './helpers';
-import { TypeScriptTask } from './tasks/typescript-task';
+import { getBinaryPath } from './helpers.js';
+import { TypeScriptTask } from './tasks/typescript-task/index.js';
 
-const EMPTY_ARGUMENT = '@__EMPTY_ARGUMENT__@';
+const TYPESCRIPT_RUNTIME = 'tsx';
 export default class TypeScriptModule extends AbstractModule {
   public getKernelEventHandlers() {
     return {
@@ -21,17 +21,8 @@ export default class TypeScriptModule extends AbstractModule {
   }
 
   onInit = async (args: Arguments, env: string, container: PrimitiveContainer) => {
-    const parsedArgs = ArgumentsParser.parse(
+    const parsedArgs = await ArgumentsParser.parse(
       CommandBuilder.create()
-        // As having at least one agument is mandatory even if the initial command
-        // does not require it, we create a dummy one that will be re-injected
-        // in the new command (see below) if it has a different value than
-        // `EMPTY_ARGUMENT`
-        .addArgument('first-argument', {
-          describe: 'First argument',
-          type: 'string',
-          default: EMPTY_ARGUMENT,
-        })
         .addOption('use-typescript', {
           describe: 'Runs command through TypeScript interpreter',
           type: 'boolean',
@@ -58,23 +49,20 @@ export default class TypeScriptModule extends AbstractModule {
     const watch = parsedArgs.get<boolean>('watch');
     // if the --use-typescript option has been used
     if (useTS) {
-      const tsNodePath = await getBinaryPath(watch ? 'ts-node-dev' : 'ts-node');
+      const typescriptRuntimePath = await getBinaryPath(TYPESCRIPT_RUNTIME);
       const scriptPath = process.argv[1]; // alliage-script path
       const scriptArgs = [
-        `--project=${parsedArgs.get('ts-project')}`,
+        ...(watch ? ['watch'] : []),
+        `--tsconfig=${parsedArgs.get('ts-project')}`,
         scriptPath,
         args.get('script'),
-        ...(parsedArgs.get('first-argument') === EMPTY_ARGUMENT
-          ? []
-          : [parsedArgs.get('first-argument')]),
         ...parsedArgs.getRemainingArgs(),
         `--env=${env}`,
       ];
-      // Re-execute the initial command but through ts-node this time
+      // Re-execute the initial command but through NODE_RUNTIME this time
       const { error } = cp.spawnSync(
-        tsNodePath,
-        // --respawn is used to restart the process when a change occurs
-        watch ? ['--respawn', '--exit-child', '--tree-kill', ...scriptArgs] : scriptArgs,
+        typescriptRuntimePath,
+        scriptArgs,
         {
           stdio: 'inherit',
           shell: process.platform === 'win32',
@@ -95,4 +83,4 @@ export default class TypeScriptModule extends AbstractModule {
   };
 }
 
-export * from './tasks';
+export * from './tasks/index.js';

@@ -14,7 +14,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "repository": "git@github.com:alliage-framework/typescript.git",
+  "repository": "https://github.com/alliage-framework/typescript.git",
   "author": "Boris LEBON <bo.lebon@gmail.com>",
   "license": "ISC",
   "scripts": {
@@ -22,9 +22,9 @@
     "clean": "rm -rf ./dist",
     "lint": "eslint . --ext .js --ext .ts",
     "lint:fix": "yarn lint --fix",
-    "test:unit": "NODE_ENV=test jest --maxWorkers=2 --coverage",
-    "test:integration": "NODE_ENV=test jest --maxWorkers=2 --rootDir=. -c ./integration-tests/jest.config.js",
+    "test:unit": "NODE_ENV=test vitest run --coverage",
     "test": "yarn lint && yarn test:unit",
+    "test:integration": "vitest run --config integration-tests/vitest.config.ts",
     "semantic-release": "semantic-release",
     "prepare": "husky"
   },
@@ -50,41 +50,40 @@
     }
   },
   "devDependencies": {
-    "@alliage/core": "^0.1.0-beta.3",
-    "@alliage/framework": "^1.0.0-beta.3",
-    "@alliage/sandbox": "^1.0.0-beta.1",
+    "@alliage/builder": "^0.1.0-beta.6",
+    "@alliage/config-loader": "^0.1.0-beta.6",
+    "@alliage/di": "^0.1.0-beta.6",
+    "@alliage/framework": "^1.0.0-beta.4",
+    "@alliage/lifecycle": "^0.1.0-beta.6",
+    "@alliage/module-installer": "^0.1.0-beta.6",
+    "@alliage/parameters-loader": "^0.1.0-beta.6",
+    "@alliage/process-manager": "^0.1.0-beta.6",
+    "@alliage/sandbox": "^1.0.0-beta.4",
+    "@alliage/service-loader": "^0.1.0-beta.6",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "@types/jest": "^29.5.14",
-    "@types/node": "^22.13.5",
-    "@typescript-eslint/eslint-plugin": "^8.25.0",
-    "@typescript-eslint/parser": "^8.25.0",
-    "@typescript-eslint/typescript-estree": "^8.25.0",
-    "eslint": "^9.21.0",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-prettier": "^10.0.2",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-prettier": "^5.2.3",
+    "@types/node": "^22.15.21",
+    "@vitest/coverage-v8": "3.1.4",
+    "eslint": "^9.27.0",
     "husky": "^9.1.7",
-    "jest": "^29.7.0",
-    "jest-extended": "^4.0.2",
-    "prettier": "^3.5.2",
-    "semantic-release": "^24.2.3",
-    "ts-jest": "^29.2.6",
-    "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.7.3"
+    "prettier": "^3.5.3",
+    "semantic-release": "^24.2.4",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.1",
+    "vitest": "^3.1.4"
   },
   "peerDependencies": {
-    "@alliage/framework\r": "null",
-    "@alliage/lifecycle": "null",
-    "@alliage/di": "null",
-    "@alliage/config-loader": "null",
-    "@alliage/module-installer": "null",
-    "@alliage/builder": "null",
-    "typescript": "^5.7.3",
-    "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0"
+    "@alliage/framework": "^1.0.0-beta.4",
+    "@alliage/lifecycle": "^0.1.0-beta.6",
+    "@alliage/di": "^0.1.0-beta.6",
+    "@alliage/config-loader": "^0.1.0-beta.6",
+    "@alliage/module-installer": "^0.1.0-beta.6",
+    "@alliage/builder": "^0.1.0-beta.6",
+    "typescript": "^5.8.3",
+    "tsx": "^4.19.4"
+  },
+  "dependencies": {
+    "json-schema-to-ts": "^3.1.1"
   }
 }

@@ -1,7 +1,16 @@
 {
-  "copyFiles": ["<scenarioRoot>/src", "<scenarioRoot>/config"],
+  "copyFiles": ["<scenarioRoot>/src", "<scenarioRoot>/config", "<scenarioRoot>/package.json"],
   "linkModules": {
     "@alliage/typescript": "<projectRoot>"
   },
-  "alliageModules": ["@alliage/module-installer", "@alliage/lifecycle", "@alliage/di"]
+  "alliageModules": [
+    "@alliage/module-installer",
+    "@alliage/lifecycle",
+    "@alliage/di",
+    "@alliage/process-manager",
+    "@alliage/service-loader",
+    "@alliage/config-loader",
+    "@alliage/builder",
+    "@alliage/parameters-loader"
+  ]
 }

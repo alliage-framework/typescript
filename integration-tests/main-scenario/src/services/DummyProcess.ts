@@ -4,7 +4,7 @@ import { Service } from '@alliage/service-loader';
 import { parameter } from '@alliage/di';
 
 @Service('dummy_process', [parameter('parameters.welcomeMessage')])
-class DummyProcess extends AbstractProcess {
+export default class DummyProcess extends AbstractProcess {
   private welcomeMessage: string;
 
   constructor(welcomeMessage: string) {
@@ -38,5 +38,3 @@ class DummyProcess extends AbstractProcess {
     process.stdout.write(`shutting down with signal: ${signal}\n`);
   }
 }
-
-export default DummyProcess;

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { Sandbox } from '@alliage/sandbox';
+import { describe, beforeAll, afterAll, it, expect } from 'vitest';
 
 describe('Main scenario', () => {
   const sandbox = new Sandbox({
@@ -8,7 +9,6 @@ describe('Main scenario', () => {
 
   beforeAll(async () => {
     await sandbox.init();
-    await sandbox.install(['@alliage/core', '--env=development']).waitCompletion();
   });
 
   afterAll(async () => {
@@ -44,7 +44,7 @@ describe('Main scenario', () => {
     );
   });
 
-  it('should allow to execute the command with ts-node', async () => {
+  it('should allow to execute the command with tsx', async () => {
     const { waitCompletion, process: childProcess } = sandbox.run([
       'dummy-process',
       'test',
@@ -74,7 +74,7 @@ describe('Main scenario', () => {
     await waitBuildCompletion();
 
     // Removing the source directory should ensure that it's the compiled version that is actually executed
-    fs.rmdirSync(`${sandbox.getPath()}/src`, { recursive: true });
+    fs.rmSync(`${sandbox.getPath()}/src`, { recursive: true });
 
     const { waitCompletion: waitRunCompletion, process: runProcess } = sandbox.run([
       'dummy-process',

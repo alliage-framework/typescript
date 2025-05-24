@@ -1,15 +1,20 @@
-import path from 'path';
-import fs, { NoParamCallback, PathLike } from 'fs';
+import * as path from 'path';
+import * as fs from 'fs';
+import type { NoParamCallback, PathLike } from 'fs';
+import { describe, it, beforeEach, afterEach, expect, vi, type MockedFunction } from 'vitest';
 import { getBinaryPath } from '../helpers';
 
-jest.mock('fs', () => ({
-  ...(jest.requireActual('fs') as Record<string, unknown>),
-  access: jest.fn(),
-}));
+vi.mock('fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof fs>();
+  return {
+    ...actual,
+    access: vi.fn(),
+  };
+});
 
 describe('helpers', () => {
   describe('#getBinaryPath', () => {
-    const accessMock = fs.access as unknown as jest.MockedFunction<
+    const accessMock = fs.access as unknown as MockedFunction<
       (filePath: PathLike, mode: number | undefined, callback: NoParamCallback) => void
     >;
     const originalPlatform = process.platform;
@@ -22,7 +27,7 @@ describe('helpers', () => {
     });
 
     afterEach(() => {
-      jest.resetAllMocks();
+      vi.resetAllMocks();
     });
 
     it('should return the absolute bin path if it exists on Unix', async () => {
