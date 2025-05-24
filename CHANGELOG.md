@@ -1,3 +1,10 @@
+# [1.0.0-beta.5](https://github.com/alliage-framework/typescript/compare/v1.0.0-beta.4...v1.0.0-beta.5) (2025-05-24)
+
+
+### Bug Fixes
+
+* windows support ([#4](https://github.com/alliage-framework/typescript/issues/4)) ([8d5cfa2](https://github.com/alliage-framework/typescript/commit/8d5cfa253d67b5ef910f2cbd99842216dc1b7f77))
+
 # [1.0.0-beta.4](https://github.com/alliage-framework/typescript/compare/v1.0.0-beta.3...v1.0.0-beta.4) (2025-02-26)
 
 
