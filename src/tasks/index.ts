@@ -1,1 +1,1 @@
-export * from './typescript-task';
+export * from './typescript-task/index.js';

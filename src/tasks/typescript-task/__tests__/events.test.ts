@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { EventManager } from '@alliage/lifecycle';
 import { ShellTask } from '@alliage/builder';
 

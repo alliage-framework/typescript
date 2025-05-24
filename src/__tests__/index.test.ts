@@ -1,13 +1,23 @@
-import cp, { SpawnSyncReturns } from 'child_process';
+import * as cp from 'child_process';
+import type { SpawnSyncReturns } from 'child_process';
 
 import { Arguments, PrimitiveContainer } from '@alliage/framework';
 import { ServiceContainer, service } from '@alliage/di';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import type { MockedFunction } from 'vitest';
 
 import TypeScriptModule from '..';
 import { getBinaryPath } from '../helpers';
 import { TypeScriptTask } from '../tasks/typescript-task';
 
-jest.mock('../helpers');
+vi.mock('../helpers');
+vi.mock('child_process', async (importOriginal) => {
+  const actual = await importOriginal<typeof cp>();
+  return {
+    ...actual,
+    spawnSync: vi.fn(),
+  };
+});
 
 describe('typescript-module', () => {
   describe('TypeScriptModule', () => {
@@ -27,22 +37,22 @@ describe('typescript-module', () => {
 
       primitiveContainer.set('service_container', serviceContainer);
 
-      const exitSpy = jest.spyOn(process, 'exit');
-      const spawnSpy = jest.spyOn(cp, 'spawnSync');
-      const registerServiceSpy = jest.spyOn(serviceContainer, 'registerService');
-      const getBinaryPathMock = getBinaryPath as jest.Mock;
+      const exitSpy = vi.spyOn(process, 'exit');
+      const spawnMock = cp.spawnSync as unknown as MockedFunction<typeof cp.spawnSync>;
+      const registerServiceSpy = vi.spyOn(serviceContainer, 'registerService');
+      const getBinaryPathMock = getBinaryPath as MockedFunction<typeof getBinaryPath>;
 
       process.argv[1] = '/path/to/alliage-script';
 
       beforeEach(() => {
-        exitSpy.mockImplementation((() => {}) as any);
-        spawnSpy.mockReturnValue({ error: undefined } as SpawnSyncReturns<Buffer>);
-        registerServiceSpy.mockImplementation((() => {}) as any);
-        getBinaryPathMock.mockResolvedValue('/path/to/ts-node');
+        exitSpy.mockImplementation(() => undefined as never);
+        spawnMock.mockReturnValue({ error: undefined } as SpawnSyncReturns<Buffer>);
+        registerServiceSpy.mockImplementation(() => undefined as never);
+        getBinaryPathMock.mockResolvedValue('/path/to/ts-runtime');
       });
 
       afterEach(() => {
-        jest.resetAllMocks();
+        vi.resetAllMocks();
       });
 
       it('should run the current script through TypeScript if the --use-typescript option is used', async () => {
@@ -53,10 +63,10 @@ describe('typescript-module', () => {
         ]);
         await module.onInit(args, 'test', primitiveContainer);
 
-        expect(spawnSpy).toHaveBeenCalledWith(
-          '/path/to/ts-node',
+        expect(spawnMock).toHaveBeenCalledWith(
+          '/path/to/ts-runtime',
           [
-            '--project=tsconfig.json',
+            '--tsconfig=tsconfig.json',
             '/path/to/alliage-script',
             'run',
             'test-arg',
@@ -76,9 +86,9 @@ describe('typescript-module', () => {
         const args = Arguments.create({ script: 'run' }, ['--use-typescript']);
         await module.onInit(args, 'test', primitiveContainer);
 
-        expect(spawnSpy).toHaveBeenCalledWith(
-          '/path/to/ts-node',
-          ['--project=tsconfig.json', '/path/to/alliage-script', 'run', '--env=test'],
+        expect(spawnMock).toHaveBeenCalledWith(
+          '/path/to/ts-runtime',
+          ['--tsconfig=tsconfig.json', '/path/to/alliage-script', 'run', '--env=test'],
           expect.objectContaining({
             env: expect.objectContaining({
               ALLIAGE_TS_SERVICES_BASEPATH: 'src',
@@ -95,9 +105,9 @@ describe('typescript-module', () => {
         ]);
         await module.onInit(args, 'test', primitiveContainer);
 
-        expect(spawnSpy).toHaveBeenCalledWith(
-          '/path/to/ts-node',
-          ['--project=tsconfig.json', '/path/to/alliage-script', 'run', '--env=test'],
+        expect(spawnMock).toHaveBeenCalledWith(
+          '/path/to/ts-runtime',
+          ['--tsconfig=tsconfig.json', '/path/to/alliage-script', 'run', '--env=test'],
           expect.objectContaining({
             env: expect.objectContaining({
               ALLIAGE_TS_SERVICES_BASEPATH: '/path/to/services',
@@ -114,9 +124,9 @@ describe('typescript-module', () => {
         ]);
         await module.onInit(args, 'test', primitiveContainer);
 
-        expect(spawnSpy).toHaveBeenCalledWith(
-          '/path/to/ts-node',
-          ['--project=/path/to/tsconfig.json', '/path/to/alliage-script', 'run', '--env=test'],
+        expect(spawnMock).toHaveBeenCalledWith(
+          '/path/to/ts-runtime',
+          ['--tsconfig=/path/to/tsconfig.json', '/path/to/alliage-script', 'run', '--env=test'],
           expect.objectContaining({
             env: expect.objectContaining({
               ALLIAGE_TS_SERVICES_BASEPATH: 'src',
@@ -127,14 +137,14 @@ describe('typescript-module', () => {
       });
 
       it('should exit with an error if the command failed', async () => {
-        spawnSpy.mockReturnValue({ error: new Error() } as SpawnSyncReturns<Buffer>);
+        spawnMock.mockReturnValue({ error: new Error() } as SpawnSyncReturns<Buffer>);
 
         const args = Arguments.create({ script: 'run' }, ['--use-typescript']);
         await module.onInit(args, 'test', primitiveContainer);
 
-        expect(spawnSpy).toHaveBeenCalledWith(
-          '/path/to/ts-node',
-          ['--project=tsconfig.json', '/path/to/alliage-script', 'run', '--env=test'],
+        expect(spawnMock).toHaveBeenCalledWith(
+          '/path/to/ts-runtime',
+          ['--tsconfig=tsconfig.json', '/path/to/alliage-script', 'run', '--env=test'],
           expect.objectContaining({
             env: expect.objectContaining({
               ALLIAGE_TS_SERVICES_BASEPATH: 'src',
@@ -148,24 +158,34 @@ describe('typescript-module', () => {
         const args = Arguments.create({ script: 'run' }, []);
         await module.onInit(args, 'test', primitiveContainer);
 
-        expect(spawnSpy).not.toHaveBeenCalled();
+        expect(spawnMock).not.toHaveBeenCalled();
         expect(registerServiceSpy).toHaveBeenCalledWith('typescript_task', TypeScriptTask, [
           service('event_manager'),
         ]);
       });
 
-      it('should use ts-node by default', async () => {
+      it('should use "tsx" by default', async () => {
         const args = Arguments.create({ script: 'run' }, ['--use-typescript']);
         await module.onInit(args, 'test', primitiveContainer);
 
-        expect(getBinaryPathMock).toHaveBeenCalledWith('ts-node');
+        expect(getBinaryPathMock).toHaveBeenCalledWith('tsx');
+        expect(spawnMock).toHaveBeenCalledWith(
+          '/path/to/ts-runtime',
+          ['--tsconfig=tsconfig.json', '/path/to/alliage-script', 'run', '--env=test'],
+          expect.anything(),
+        );
       });
 
-      it('should use ts-node-dev when the --watch options is used', async () => {
+      it('should use "tsx watch" when the --watch options is used', async () => {
         const args = Arguments.create({ script: 'run' }, ['--use-typescript', '--watch']);
         await module.onInit(args, 'test', primitiveContainer);
 
-        expect(getBinaryPathMock).toHaveBeenCalledWith('ts-node-dev');
+        expect(getBinaryPathMock).toHaveBeenCalledWith('tsx');
+        expect(spawnMock).toHaveBeenCalledWith(
+          '/path/to/ts-runtime',
+          ['watch', '--tsconfig=tsconfig.json', '/path/to/alliage-script', 'run', '--env=test'],
+          expect.anything(),
+        );
       });
     });
   });

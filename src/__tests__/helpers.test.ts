@@ -1,15 +1,22 @@
-import path from 'path';
-import fs, { NoParamCallback, PathLike } from 'fs';
+import * as path from 'path';
+import * as fs from 'fs';
+import type { NoParamCallback, PathLike } from 'fs';
+import { describe, it, beforeEach, afterEach, expect, vi, type MockedFunction } from 'vitest';
 import { getBinaryPath } from '../helpers';
 
-jest.mock('fs', () => ({
-  ...(jest.requireActual('fs') as object),
-  access: jest.fn(),
-}));
+vi.mock('fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof fs>();
+  return {
+    ...actual,
+    access: vi.fn(),
+  };
+});
 
 describe('helpers', () => {
   describe('#getBinaryPath', () => {
-    const accessMock = (fs.access as unknown) as jest.Mock;
+    const accessMock = fs.access as unknown as MockedFunction<
+      (filePath: PathLike, mode: number | undefined, callback: NoParamCallback) => void
+    >;
     const originalPlatform = process.platform;
 
     beforeEach(() => {
@@ -20,19 +27,16 @@ describe('helpers', () => {
     });
 
     afterEach(() => {
-      jest.resetAllMocks();
+      vi.resetAllMocks();
     });
 
     it('should return the absolute bin path if it exists on Unix', async () => {
-      accessMock.mockImplementationOnce(((
-        binPath: PathLike,
-        mode: number | undefined,
-        callback: NoParamCallback,
-      ) => {
-        expect(binPath).toEqual(path.resolve('./node_modules/.bin/test-bin'));
-        expect(mode).toEqual(fs.constants.F_OK);
-        callback(null);
-      }) as any);
+      accessMock.mockImplementation(
+        (filePath: PathLike, _mode: number | undefined, callback: NoParamCallback) => {
+          expect(filePath).toEqual(path.resolve('./node_modules/.bin/test-bin'));
+          callback(null);
+        },
+      );
 
       const binPath = await getBinaryPath('test-bin');
 
@@ -46,24 +50,14 @@ describe('helpers', () => {
         value: 'win32',
       });
 
-      // Mock the base path to fail
-      accessMock.mockImplementationOnce(((
-        _binPath: PathLike,
+      // Mock .exe to succeed and others to fail
+      const mockCallback = (
+        filePath: PathLike,
         _mode: number | undefined,
         callback: NoParamCallback,
       ) => {
-        callback(new Error('not found'));
-      }) as any);
-
-      // Mock .exe to succeed and others to fail
-      const mockCallback = (
-        binPath: PathLike,
-        mode: number | undefined,
-        callback: NoParamCallback,
-      ) => {
-        if (binPath.toString().endsWith('.exe')) {
-          expect(binPath).toEqual(path.resolve('./node_modules/.bin/test-bin.exe'));
-          expect(mode).toEqual(fs.constants.F_OK);
+        if (filePath.toString().endsWith('.exe')) {
+          expect(filePath).toEqual(path.resolve('./node_modules/.bin/test-bin.exe'));
           callback(null);
         } else {
           callback(new Error('not found'));
@@ -71,14 +65,14 @@ describe('helpers', () => {
       };
 
       // Add mocks for all extensions
-      accessMock.mockImplementationOnce(mockCallback as any); // .exe
-      accessMock.mockImplementationOnce(mockCallback as any); // .cmd
-      accessMock.mockImplementationOnce(mockCallback as any); // .bat
+      accessMock.mockImplementationOnce(mockCallback); // .exe
+      accessMock.mockImplementationOnce(mockCallback); // .cmd
+      accessMock.mockImplementationOnce(mockCallback); // .bat
 
       const binPath = await getBinaryPath('test-bin');
 
       expect(binPath).toEqual(path.resolve('./node_modules/.bin/test-bin.exe'));
-      expect(accessMock).toHaveBeenCalledTimes(4); // Updated: base path + all 3 extensions
+      expect(accessMock).toHaveBeenCalledTimes(3); // all 3 extensions
     });
 
     it('should try all extensions on Windows before failing', async () => {
@@ -88,49 +82,44 @@ describe('helpers', () => {
       });
 
       // Mock all attempts to fail
-      accessMock.mockImplementation(((
-        _binPath: PathLike,
-        _mode: number | undefined,
-        callback: NoParamCallback,
-      ) => {
-        callback(new Error('not found'));
-      }) as any);
+      accessMock.mockImplementation(
+        (_filePath: PathLike, _mode: number | undefined, callback: NoParamCallback) => {
+          callback(new Error('not found'));
+        },
+      );
 
-      let error;
+      let error: Error | undefined;
       try {
         await getBinaryPath('test-bin');
       } catch (e) {
-        error = e;
+        error = e as Error;
       }
 
-      expect(accessMock).toHaveBeenCalledTimes(4); // base + 3 extensions
+      expect(accessMock).toHaveBeenCalledTimes(3); // 3 extensions
       expect(error).toBeInstanceOf(Error);
-      expect(error.message).toEqual(
+      expect(error?.message).toEqual(
         'Can\'t access "test-bin" binary. Please check it has been properly installed',
       );
     });
 
     it('should throw an error if the bin does not exist on Unix', async () => {
-      accessMock.mockImplementationOnce(((
-        binPath: PathLike,
-        mode: number | undefined,
-        callback: NoParamCallback,
-      ) => {
-        expect(binPath).toEqual(path.resolve('./node_modules/.bin/test-bin'));
-        expect(mode).toEqual(fs.constants.F_OK);
-        callback(new Error('test_error'));
-      }) as any);
+      accessMock.mockImplementation(
+        (filePath: PathLike, _mode: number | undefined, callback: NoParamCallback) => {
+          expect(filePath).toEqual(path.resolve('./node_modules/.bin/test-bin'));
+          callback(new Error('test_error'));
+        },
+      );
 
-      let error;
+      let error: Error | undefined;
       try {
         await getBinaryPath('test-bin');
       } catch (e) {
-        error = e;
+        error = e as Error;
       }
 
       expect(accessMock).toHaveBeenCalledTimes(1);
       expect(error).toBeInstanceOf(Error);
-      expect(error.message).toEqual(
+      expect(error?.message).toEqual(
         'Can\'t access "test-bin" binary. Please check it has been properly installed',
       );
     });

@@ -1,3 +1,5 @@
+import { describe, it, expect, vi } from 'vitest';
+import type { MockedFunction } from 'vitest';
 import { EventManager } from '@alliage/lifecycle';
 import { ShellTask } from '@alliage/builder';
 
@@ -5,7 +7,7 @@ import { TypeScriptTask } from '..';
 import { TASK_EVENTS, BeforeRunEvent, AfterRunEvent } from '../events';
 import { getBinaryPath } from '../../../helpers';
 
-jest.mock('../../../helpers');
+vi.mock('../../../helpers');
 
 describe('tasks/typescript', () => {
   describe('TypeScriptTask', () => {
@@ -27,15 +29,16 @@ describe('tasks/typescript', () => {
               type: 'string',
             },
           },
+          required: ['projectPath'],
         });
       });
     });
 
     describe('#run', () => {
-      const getBinaryPathMock = getBinaryPath as jest.Mock;
+      const getBinaryPathMock = getBinaryPath as MockedFunction<typeof getBinaryPath>;
 
-      const beforeRunEventHandler = jest.fn();
-      const afterRunEventHandler = jest.fn();
+      const beforeRunEventHandler = vi.fn();
+      const afterRunEventHandler = vi.fn();
 
       eventManager.on(TASK_EVENTS.BEFORE_RUN, beforeRunEventHandler);
       eventManager.on(TASK_EVENTS.AFTER_RUN, afterRunEventHandler);
@@ -43,7 +46,7 @@ describe('tasks/typescript', () => {
       it('should execute the TypeScript compile command', async () => {
         getBinaryPathMock.mockResolvedValueOnce('/path/to/tsc');
         const dummyShellTask = new ShellTask(eventManager);
-        const runSpy = jest.spyOn(dummyShellTask, 'run').mockResolvedValueOnce(undefined);
+        const runSpy = vi.spyOn(dummyShellTask, 'run').mockResolvedValueOnce(undefined);
 
         beforeRunEventHandler.mockImplementationOnce((event: BeforeRunEvent) => {
           expect(event.getTscPath()).toEqual('/path/to/tsc');

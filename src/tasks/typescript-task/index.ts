@@ -1,13 +1,21 @@
 import { AbstractTask, ShellTask } from '@alliage/builder';
 import { EventManager } from '@alliage/lifecycle';
 
-import { getBinaryPath } from '../../helpers';
-import { BeforeRunEvent, AfterRunEvent } from './events';
+import { getBinaryPath } from '../../helpers.js';
+import { BeforeRunEvent, AfterRunEvent } from './events.js';
+import { FromSchema } from 'json-schema-to-ts';
 
-export interface Params {
-  projectPath: string;
-}
+const schema = {
+  type: 'object',
+  properties: {
+    projectPath: {
+      type: 'string'
+    },
+  },
+  required: ['projectPath'],
+} as const;
 
+export type Params = FromSchema<typeof schema>;
 export class TypeScriptTask extends AbstractTask {
   private eventManager: EventManager;
 
@@ -21,14 +29,7 @@ export class TypeScriptTask extends AbstractTask {
   }
 
   getParamsSchema() {
-    return {
-      type: 'object',
-      properties: {
-        projectPath: {
-          type: 'string',
-        },
-      },
-    };
+    return schema;
   }
 
   async run({ projectPath }: Params) {
@@ -50,4 +51,4 @@ export class TypeScriptTask extends AbstractTask {
   }
 }
 
-export * from './events';
+export * from './events.js';
